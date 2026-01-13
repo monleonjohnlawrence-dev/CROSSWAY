@@ -16,9 +16,9 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={heroStyle}>
           <Text style={styles.brandTag}>EST. 2023 / YOUTH MOVEMENT</Text>
-          <Text style={titleStyle}>CROSS{"\n"}WAY</Text>
+          <Text style={titleStyle}>CROSSWAY{"\n"}CONFERENCE 2026</Text>
           <View style={styles.divider} />
-          <Text style={styles.missionText}>WE ARE THE GENERATION THAT MAKES THE WAY CLEAR. JOIN US FOR THE 2026 CONFERENCE.</Text>
+          <Text style={styles.missionText}>YOUR LIGHT HAS COME. JOIN US FOR THE 2026 CONFERENCE.</Text>
           
           <Link href="/register" asChild>
             <TouchableOpacity style={buttonStyle}>
