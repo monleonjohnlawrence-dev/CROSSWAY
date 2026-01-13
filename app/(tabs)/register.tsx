@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 
 export default function RegisterScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>GET TICKETS</Text>
+      <Text style={styles.title}>REGISTRATION</Text>
       <View style={styles.form}>
         <TextInput style={styles.input} placeholder="FULL NAME" placeholderTextColor="#999" />
         <TextInput style={styles.input} placeholder="EMAIL ADDRESS" placeholderTextColor="#999" />
