@@ -6,11 +6,20 @@ import { ArrowRight, Instagram, Youtube, Facebook } from 'lucide-react-native';
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   
-  // 1. Organize Title into Words then Letters
+  // Breakpoints
+  const isDesktop = width > 1024;
+  const isTablet = width > 768;
+
+  // Measurements
+  const HALF_INCH = 48; 
+  const ONE_INCH = 96;  
+  
+  // DYNAMIC NAVBAR PADDING
+  // If desktop, use 100. If mobile, use 0.5 inch (48px).
+  const NAVBAR_PADDING = isDesktop ? 100 : HALF_INCH; 
+
   const titleText = "CROSSWAY\nCONFERENCE 2026";
   const lines = titleText.split("\n");
-  
-  // Total count of all characters (to map animated values correctly)
   const allChars = titleText.split("");
   const animatedValues = useRef(allChars.map(() => new Animated.Value(0))).current;
 
@@ -33,21 +42,16 @@ export default function HomeScreen() {
     runAnimation();
   }, [animatedValues]);
 
-  const isDesktop = width > 1024;
-  const isTablet = width > 768;
-  const HALF_INCH = 48; 
-  const ONE_INCH = 96;  
-  const NAVBAR_PADDING = 100; 
-
   const titleSize = isDesktop ? 110 : isTablet ? 80 : Math.max(width * 0.12, 42);
   const dynamicLineHeight = Math.round(titleSize * 0.9);
 
-  // Counter to keep track of the animatedValues index across nested loops
   let charCounter = 0;
 
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        
+        {/* mainContent uses dynamic padding from navbar */}
         <View style={[styles.mainContent, { paddingTop: NAVBAR_PADDING }]}>
           <View style={[styles.hero, { paddingLeft: HALF_INCH, paddingRight: HALF_INCH }]}>
             
@@ -57,7 +61,6 @@ export default function HomeScreen() {
               {lines.map((line, lineIndex) => (
                 <View key={`line-${lineIndex}`} style={styles.lineWrapper}>
                   {line.split(" ").map((word, wordIndex) => (
-                    /* This View ensures the WORD stays together */
                     <View key={`word-${wordIndex}`} style={styles.wordWrapper}>
                       {word.split("").map((char, charIndex) => {
                         const currentIndex = charCounter++;
@@ -87,7 +90,6 @@ export default function HomeScreen() {
                           </Animated.Text>
                         );
                       })}
-                      {/* Add space after the word wrapper */}
                       <Text style={[styles.mainTitle, { fontSize: titleSize }]}>{"\u00A0"}</Text>
                     </View>
                   ))}
@@ -115,6 +117,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* FOOTER - REMAINS UNCHANGED */}
         <View style={[styles.footer, { height: ONE_INCH }]}>
           <View style={[styles.footerInner, { paddingHorizontal: HALF_INCH }]}>
             <Text style={styles.footerLogo}>CROSSWAY</Text>
@@ -136,10 +139,10 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   mainContent: { flex: 1, width: '100%', justifyContent: 'center', alignItems: 'flex-start' },
-  hero: { width: '100%', maxWidth: 1400, paddingVertical: 60 },
+  hero: { width: '100%', maxWidth: 1400, paddingVertical: 40 },
   titleContainer: { alignItems: 'flex-start' },
   lineWrapper: { flexDirection: 'row', flexWrap: 'wrap' },
-  wordWrapper: { flexDirection: 'row' }, // This prevents individual letters from wrapping
+  wordWrapper: { flexDirection: 'row' }, 
   brandTag: { fontWeight: '700', fontSize: 12, letterSpacing: 5, color: '#999', marginBottom: 20 },
   mainTitle: { fontWeight: '900', letterSpacing: -2, color: '#000' },
   mustardText: { color: '#E1AD01', fontWeight: '700' },
