@@ -6,16 +6,17 @@ import { ArrowRight, Instagram, Youtube, Facebook } from 'lucide-react-native';
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   
-  // Title Setup
+  // 1. Organize Title into Words then Letters
   const titleText = "CROSSWAY\nCONFERENCE 2026";
-  const letters = titleText.split("");
+  const lines = titleText.split("\n");
   
-  const animatedValues = useRef(letters.map(() => new Animated.Value(0))).current;
+  // Total count of all characters (to map animated values correctly)
+  const allChars = titleText.split("");
+  const animatedValues = useRef(allChars.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
     const runAnimation = () => {
       animatedValues.forEach(val => val.setValue(0));
-
       const animations = animatedValues.map((anim) => 
         Animated.spring(anim, {
           toValue: 1,
@@ -24,13 +25,11 @@ export default function HomeScreen() {
           useNativeDriver: true,
         })
       );
-
       Animated.sequence([
         Animated.stagger(50, animations),
         Animated.delay(3000) 
       ]).start(() => runAnimation());
     };
-
     runAnimation();
   }, [animatedValues]);
 
@@ -43,54 +42,62 @@ export default function HomeScreen() {
   const titleSize = isDesktop ? 110 : isTablet ? 80 : Math.max(width * 0.12, 42);
   const dynamicLineHeight = Math.round(titleSize * 0.9);
 
+  // Counter to keep track of the animatedValues index across nested loops
+  let charCounter = 0;
+
   return (
     <View style={styles.container}>
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={[styles.mainContent, { paddingTop: NAVBAR_PADDING }]}>
           <View style={[styles.hero, { paddingLeft: HALF_INCH, paddingRight: HALF_INCH }]}>
             
             <Text style={styles.brandTag}>EST. 2023 / YOUTH MOVEMENT</Text>
             
             <View style={styles.titleContainer}>
-              {letters.map((char, index) => {
-                if (char === "\n") return <View key={index} style={{ width: '100%' }} />;
+              {lines.map((line, lineIndex) => (
+                <View key={`line-${lineIndex}`} style={styles.lineWrapper}>
+                  {line.split(" ").map((word, wordIndex) => (
+                    /* This View ensures the WORD stays together */
+                    <View key={`word-${wordIndex}`} style={styles.wordWrapper}>
+                      {word.split("").map((char, charIndex) => {
+                        const currentIndex = charCounter++;
+                        const rotateY = animatedValues[currentIndex].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['180deg', '0deg'],
+                        });
+                        const opacity = animatedValues[currentIndex].interpolate({
+                          inputRange: [0, 0.2, 1],
+                          outputRange: [0, 1, 1],
+                        });
 
-                const rotateY = animatedValues[index].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['180deg', '0deg'],
-                });
-
-                const opacity = animatedValues[index].interpolate({
-                  inputRange: [0, 0.2, 1],
-                  outputRange: [0, 1, 1],
-                });
-
-                return (
-                  <Animated.Text
-                    key={index}
-                    style={[
-                      styles.mainTitle,
-                      {
-                        fontSize: titleSize,
-                        lineHeight: dynamicLineHeight,
-                        opacity: opacity,
-                        transform: [{ rotateY }],
-                      }
-                    ]}
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </Animated.Text>
-                );
-              })}
+                        return (
+                          <Animated.Text
+                            key={`char-${charIndex}`}
+                            style={[
+                              styles.mainTitle,
+                              {
+                                fontSize: titleSize,
+                                lineHeight: dynamicLineHeight,
+                                opacity: opacity,
+                                transform: [{ rotateY }],
+                              }
+                            ]}
+                          >
+                            {char}
+                          </Animated.Text>
+                        );
+                      })}
+                      {/* Add space after the word wrapper */}
+                      <Text style={[styles.mainTitle, { fontSize: titleSize }]}>{"\u00A0"}</Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
             </View>
 
             <View style={styles.divider} />
             
             <Text style={styles.missionText}>
-              {/* Highlighted text in Mustard Yellow */}
               <Text style={styles.mustardText}>YOUR LIGHT HAS COME.</Text> JOIN US FOR THE 2026 CONFERENCE.
             </Text>
             
@@ -117,9 +124,7 @@ export default function HomeScreen() {
                 <TouchableOpacity><Youtube color="black" size={isDesktop ? 22 : 18} /></TouchableOpacity>
                 <TouchableOpacity><Facebook color="black" size={isDesktop ? 22 : 18} /></TouchableOpacity>
               </View>
-              {width > 600 && (
-                <Text style={styles.copyright}>© 2026 ALL RIGHTS RESERVED.</Text>
-              )}
+              {width > 600 && <Text style={styles.copyright}>© 2026 ALL RIGHTS RESERVED.</Text>}
             </View>
           </View>
         </View>
@@ -130,33 +135,16 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  mainContent: {
-    flex: 1, 
-    width: '100%',
-    justifyContent: 'center', 
-    alignItems: 'flex-start',
-  },
-  hero: { 
-    width: '100%',
-    maxWidth: 1400,
-    paddingVertical: 60,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-  },
+  mainContent: { flex: 1, width: '100%', justifyContent: 'center', alignItems: 'flex-start' },
+  hero: { width: '100%', maxWidth: 1400, paddingVertical: 60 },
+  titleContainer: { alignItems: 'flex-start' },
+  lineWrapper: { flexDirection: 'row', flexWrap: 'wrap' },
+  wordWrapper: { flexDirection: 'row' }, // This prevents individual letters from wrapping
   brandTag: { fontWeight: '700', fontSize: 12, letterSpacing: 5, color: '#999', marginBottom: 20 },
   mainTitle: { fontWeight: '900', letterSpacing: -2, color: '#000' },
+  mustardText: { color: '#E1AD01', fontWeight: '700' },
   divider: { width: 80, height: 10, backgroundColor: '#000', marginVertical: 30 },
   missionText: { fontSize: 20, lineHeight: 32, marginBottom: 40, maxWidth: 600, fontWeight: '500', color: '#333' },
-  
-  // NEW STYLE FOR MUSTARD YELLOW
-  mustardText: {
-    color: '#E1AD01', 
-    fontWeight: '700', // Optional: make it slightly bolder to stand out
-  },
-
   primaryButton: { backgroundColor: '#000', padding: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' },
   buttonText: { color: '#FFF', fontWeight: '700', fontSize: 14, letterSpacing: 3 },
   footer: { width: '100%', borderTopWidth: 1, borderTopColor: '#eee', backgroundColor: '#fff', justifyContent: 'center' },
